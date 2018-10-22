@@ -18,6 +18,8 @@ top_five5_corpus_path = 'simple_corpus.csv'
 word2vec_embeddings_path = './word2vec/w2v_model'
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
+unknown_word_during_textrank = []
+
 
 # ——————————————————data loading---------——————————————————————————————————————————
 def load_data(file_dir, prefix):
@@ -127,16 +129,25 @@ def compute_similarity_by_avg(model, sents_1, sents_2):
     """
     if len(sents_1) == 0 or len(sents_2) == 0:
         return 0.0
-    vec1 = model[sents_1[0]]
+    vec1 = query_vector(sents_1[0], model)
     for word1 in sents_1[1:]:
-        vec1 = vec1 + model[word1]
+        vec1 = vec1 + query_vector(word1, model)
 
-    vec2 = model[sents_2[0]]
+    vec2 = query_vector(sents_2[0], model)
     for word2 in sents_2[1:]:
-        vec2 = vec2 + model[word2]
+        vec2 = vec2 + query_vector(word2, model)
 
     similarity = cosine_similarity(vec1 / len(sents_1), vec2 / len(sents_2))
     return similarity
+
+
+def query_vector(word, model, embedding_size=300):
+    try:
+        vec = model[word]
+    except KeyError:
+        unknown_word_during_textrank.append(word)
+        vec = np.zeros(embedding_size, dtype=float)
+    return vec
 
 
 def create_graph(model, word_sent):
