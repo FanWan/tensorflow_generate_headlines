@@ -13,10 +13,9 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 np.seterr(all='warn')
 
-PRE_FIX = "bytecup.corpus."
-TRAIN_DATA_FLAG = "train"
+PRE_FIX = "bytecup.corpus.train"
 top_five5_corpus_path = 'simple_corpus.csv'
-word2vec_model_path = 'word2vec'
+word2vec_embeddings_path = './word2vec/w2v_model'
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 
 
@@ -84,18 +83,20 @@ def train_word2vec(texts):
     :return:model
     """
     sentences = content_process2wv(texts)
-    if not os.path.exists(word2vec_model_path):
+    if not os.path.exists(word2vec_embeddings_path):
+        print('make model saved directory')
+        os.makedirs(os.path.dirname(word2vec_embeddings_path))
         print('begin word2vec model training')
         model = word2vec.Word2Vec(sentences,
                                   size=300,
                                   window=10,
                                   min_count=5,
                                   workers=multiprocessing.cpu_count())
-        model.save(word2vec_model_path)
+        model.save(word2vec_embeddings_path)
         print('end word2vec model training')
     else:
         print('loading trained word2vec model')
-        model = word2vec.Word2Vec.load(word2vec_model_path)
+        model = word2vec.Word2Vec.load(word2vec_embeddings_path)
 
     return model
 
@@ -192,7 +193,7 @@ def different(scores, old_scores):
     """
     flag = False
     for i in range(len(scores)):
-        if math.fabs(scores[i] - old_scores[i]) <= 0.0001:
+        if math.fabs(scores[i] - old_scores[i]) >= 0.0001:
             flag = True
             break
     return flag
@@ -266,7 +267,7 @@ def extract_top_n_sentences(model, n, contents, titles):
 
 if __name__ == '__main__':
     data_dir = os.path.abspath("/Users/wanfan01/Public")
-    contents, titles = load_data(data_dir, PRE_FIX + TRAIN_DATA_FLAG)
+    contents, titles = load_data(data_dir, PRE_FIX)
 
     w2v_model = train_word2vec(contents)
 
