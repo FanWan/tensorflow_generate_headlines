@@ -1,0 +1,4 @@
+gensim==3.5.0
+nltk==3.3.0
+tensorflow>=1.8.0
+numpy>=1.12.0
