@@ -1,3 +1,4 @@
+<<<<<<<<< Temporary merge branch 1
 # Byte-compiled / optimized / DLL files
 ./.idea/*
 
@@ -104,3 +105,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+=========
+# IntelliJ project files
+.idea/*
+
+
+
+>>>>>>>>> Temporary merge branch 2
