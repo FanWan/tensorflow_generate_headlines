@@ -97,10 +97,10 @@ class Model(object):
         with tf.name_scope("embedding"):
             if self.embedding_type == 'glove':
                 init_embeddings = tf.constant(get_glove_embedding(self.word2index,
-                                                                  self.embedding_size), dtype=tf.float32)
+                                                                  embedding_dim=self.embedding_size), dtype=tf.float32)
             elif self.embedding_type == 'word2vec':
-                init_embeddings = tf.constant(get_word2vec_embedding(self.word2index,
-                                                                     self.embedding_size), dtype=tf.float32)
+                init_embeddings = tf.constant(get_word2vec_embedding(self.word2index, embedding_dim=self.embedding_size),
+                                                                     dtype=tf.float32)
             else:
                 init_embeddings = tf.random_uniform([self.vocabulary_size, self.embedding_size], -1.0, 1.0)
             embeddings = tf.get_variable("embeddings", initializer=init_embeddings)

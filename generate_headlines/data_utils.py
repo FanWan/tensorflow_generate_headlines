@@ -6,9 +6,14 @@ import numpy as np
 import html
 import os
 import nltk
+from gensim.models import word2vec
+from gensim.models.keyedvectors import KeyedVectors
+from gensim.test.utils import get_tmpfile
+from gensim.scripts.glove2word2vec import glove2word2vec
 
-glove_embeddings_path = '/Users/wanfan01/workspace/py3/Text_Summarization_with_Tensorflow/glove.840B.300d.txt'
-embedding_matrix_save_path = './embeddings/my_embedding_github.npy'
+glove_embeddings_path = '/Users/wanfan01/Public/glove.840B.300d.txt'
+embedding_matrix_save_path = './embeddings/glove_embeddings.npy'
+word2vec_embeddings_path = './word2vec'
 
 training_path = 'simple_corpus.csv'
 validate_path = 'validate.csv'
@@ -186,5 +191,31 @@ def get_glove_embedding(word2ind, embedding_dim=300):
         return np.array(embedding_matrix)
 
 
-def get_word2vec_embedding(word2ind, model=None, embedding_dim=300):
-    pass
+# def get_init_embedding(word2ind, embedding_dim):
+#     glove_file = glove_embeddings_path
+#     word2vec_file = get_tmpfile("word2vec_format.vec")
+#     glove2word2vec(glove_file, word2vec_file)
+#     print("Loading Glove vectors...")
+#     word_vectors = KeyedVectors.load_word2vec_format(word2vec_file)
+#     embedding_matrix = np.zeros((len(word2ind), embedding_dim), dtype=np.float32)
+#     for word, i in word2ind.items():
+#         try:
+#             embedding_matrix[i] = word_vectors.word_vec(word)
+#         except KeyError:
+#             embedding_matrix[i] = np.array(np.random.uniform(-1.0, 1.0, embedding_dim))
+#
+#     return np.array(embedding_matrix)
+
+
+def get_word2vec_embedding(word2ind, embedding_dim=300):
+    model = word2vec.Word2Vec.load(word2vec_embeddings_path)
+    del model
+    word_vectors = model.wv
+    embedding_matrix = np.zeros((len(word2ind), embedding_dim), dtype=np.float32)
+    for word, i in word2ind.items():
+        try:
+            embedding_matrix[i] = word_vectors.word_vec(word)
+        except KeyError:
+            embedding_matrix[i] = np.array(np.random.uniform(-1.0, 1.0, embedding_dim))
+
+    return np.array(embedding_matrix)
