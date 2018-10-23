@@ -7,17 +7,15 @@ import html
 import os
 import nltk
 from gensim.models import word2vec
-from textrank_word2vec import word2vec_embeddings_path
-
 from gensim.models.keyedvectors import KeyedVectors
 from gensim.test.utils import get_tmpfile
 from gensim.scripts.glove2word2vec import glove2word2vec
 
+from textrank_word2vec import word2vec_embeddings_path
+from textrank_word2vec import training_path, validate_path
+
 glove_embeddings_path = '/Users/wanfan01/Public/glove.840B.300d.txt'
 embedding_matrix_save_path = './embeddings/glove_embeddings.npy'
-
-training_path = 'simple_corpus.csv'
-validate_path = 'validate.csv'
 
 
 def get_init_data(train=False):

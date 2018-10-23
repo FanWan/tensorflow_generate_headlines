@@ -8,21 +8,28 @@ import os
 import logging
 import nltk
 import multiprocessing
+import argparse
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-
 np.seterr(all='warn')
 
-PRE_FIX = "bytecup.corpus.train"
-top_five5_corpus_path = 'simple_corpus.csv'
+# output file paths
 word2vec_embeddings_path = './word2vec/w2v_model'
-tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+training_path = './data/simple_corpus.csv'
+validate_path = './data/validate.csv'
 
+tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 unknown_word_during_textrank = []
 
 
+def add_arguments(parser):
+    parser.add_argument("--data_dir", type=str, default='/Users/wanfan01/Public', help="path of input data")
+    parser.add_argument("--data_file_prefix", type=str, default='bytecup.corpus.train', help="prefix of file name")
+    parser.add_argument("--text_rank_valid_data", action="store_true", default=False, help="input data type")
+
+
 # ——————————————————data loading---------——————————————————————————————————————————
-def load_data(file_dir, prefix):
+def load_data(file_dir, prefix, validate_data=False):
     contents_list = []
     titles_list = []
     if os.path.exists(file_dir):
@@ -33,7 +40,8 @@ def load_data(file_dir, prefix):
                 for line in open(file_path, 'r').readlines():
                     tmp = eval(line)
                     contents_list.append(tmp["content"])
-                    titles_list.append(tmp["title"])
+                    if not validate_data:
+                        titles_list.append(tmp["title"])
             else:
                 continue
     return contents_list, titles_list
@@ -204,7 +212,7 @@ def different(scores, old_scores):
     """
     flag = False
     for i in range(len(scores)):
-        if math.fabs(scores[i] - old_scores[i]) >= 0.0001:
+        if math.fabs(scores[i] - old_scores[i]) >= 0.002:
             flag = True
             break
     return flag
@@ -259,8 +267,11 @@ def text_rank(model, content, n):
     return [sentences[i] for i in sent_index]
 
 
-def extract_top_n_sentences(model, n, contents, titles):
-    out_file = open(top_five5_corpus_path, 'w')
+def extract_top_n_sentences(model, n, contents, titles, validate_data=False):
+    if not validate_data:
+        out_file = open(training_path, 'w')
+    else:
+        out_file = open(validate_path, 'w')
     for index, content in enumerate(contents):
         top_n_sentences = text_rank(model, content, n)
         simple_content = ''
@@ -269,7 +280,8 @@ def extract_top_n_sentences(model, n, contents, titles):
         line_dict = dict()
         line_dict['id'] = index
         line_dict['content'] = simple_content
-        line_dict['title'] = titles[index]
+        if not validate_data:
+            line_dict['title'] = titles[index]
         line = str(line_dict) + '\n'
         out_file.write(line)
     out_file.flush()
@@ -277,8 +289,15 @@ def extract_top_n_sentences(model, n, contents, titles):
 
 
 if __name__ == '__main__':
-    data_dir = os.path.abspath("/Users/wanfan01/Public")
-    contents, titles = load_data(data_dir, PRE_FIX)
+    parser = argparse.ArgumentParser()
+    add_arguments(parser)
+    args = parser.parse_args()
+    # loading initial training or validating data
+    contents, titles = load_data(os.path.abspath(args.data_dir), args.data_file_prefix,
+                                 validate_data=args.text_rank_valid_data)
 
     w2v_model = train_word2vec(contents)
-    extract_top_n_sentences(w2v_model, 5, contents, titles)
+
+    print(unknown_word_during_textrank)
+
+    extract_top_n_sentences(w2v_model, 5, contents, titles, validate_data=args.text_rank_valid_data)
