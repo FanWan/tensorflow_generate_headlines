@@ -1,6 +1,8 @@
 <<<<<<<<< Temporary merge branch 1
 # Byte-compiled / optimized / DLL files
 ./.idea/*
+./.word2vec/*
+
 
 __pycache__/
 *.py[cod]

@@ -260,10 +260,10 @@ def text_rank(model, content, n):
 
 
 def extract_top_n_sentences(model, n, contents, titles):
-    out_file = open(top_five5_corpus_path, 'wb')
+    out_file = open(top_five5_corpus_path, 'w')
     for index, content in enumerate(contents):
         top_n_sentences = text_rank(model, content, n)
-        simple_content = None
+        simple_content = ''
         for sent in top_n_sentences:
             simple_content += sent
         line_dict = dict()
@@ -271,7 +271,7 @@ def extract_top_n_sentences(model, n, contents, titles):
         line_dict['content'] = simple_content
         line_dict['title'] = titles[index]
         line = str(line_dict) + '\n'
-        out_file.writable(line)
+        out_file.write(line)
     out_file.flush()
     out_file.close()
 
@@ -281,5 +281,4 @@ if __name__ == '__main__':
     contents, titles = load_data(data_dir, PRE_FIX)
 
     w2v_model = train_word2vec(contents)
-
     extract_top_n_sentences(w2v_model, 5, contents, titles)

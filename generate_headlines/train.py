@@ -26,7 +26,7 @@ def add_arguments(parser):
     parser.add_argument("--num_epochs", type=int, default=10, help="Number of epochs.")
     parser.add_argument("--keep_prob", type=float, default=0.8, help="Dropout keep prob.")
 
-    parser.add_argument("--with_model", action="store_true", default=False, help="Continue from previously saved model")
+    parser.add_argument("--with_model", action="store_true", default=False, help="Continue from pre-saved model")
 
 
 start = time.perf_counter()
@@ -34,16 +34,16 @@ parser = argparse.ArgumentParser()
 add_arguments(parser)
 args = parser.parse_args()
 
-# writing train parameters
+# dumping train parameters
 with open("args.pickle", "wb") as f:
     pickle.dump(args, f)
 
-if not os.path.exists("saved_model"):
-    os.mkdir("saved_model")
+if not os.path.exists("seq2seq_model"):
+    os.mkdir("seq2seq_model")
 else:
     if args.with_model:
-        old_model_checkpoint_path = open('saved_model/checkpoint', 'r')
-        old_model_checkpoint_path = "".join(["saved_model/",
+        old_model_checkpoint_path = open('seq2seq_model/checkpoint', 'r')
+        old_model_checkpoint_path = "".join(["seq2seq_model/",
                                              old_model_checkpoint_path.read().splitlines()[0].split('"')[1]])
 
 print("Building dictionary...")
@@ -57,7 +57,7 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     saver = tf.train.Saver(tf.global_variables())
     if 'old_model_checkpoint_path' in globals():
-        print("Continuing from previous trained model:", old_model_checkpoint_path , "...")
+        print("Continuing training from pre-trained model:", old_model_checkpoint_path, "......")
         saver.restore(sess, old_model_checkpoint_path)
 
     batches = batch_iter(train_x, train_y, args.batch_size, args.num_epochs)
@@ -102,6 +102,6 @@ with tf.Session() as sess:
         if step % num_batches_per_epoch == 0:
             hours, rem = divmod(time.perf_counter() - start, 3600)
             minutes, seconds = divmod(rem, 60)
-            saver.save(sess, "./saved_model/model.ckpt", global_step=step)
+            saver.save(sess, "./seq2seq_model/model.ckpt", global_step=step)
             print(" Epoch {0}: Model is saved.".format(step // num_batches_per_epoch),
-            "Elapsed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds), "\n")
+                  "Elapsed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds), "\n")
