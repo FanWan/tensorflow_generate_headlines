@@ -19,6 +19,8 @@ training_path = './data/train_corpus.csv'
 validate_path = './data/validate_corpus.csv'
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+max_textrank_iterations = 200
+max_textrank_error = 0.005
 unknown_word_during_textrank = []
 
 
@@ -212,7 +214,7 @@ def different(scores, old_scores):
     """
     flag = False
     for i in range(len(scores)):
-        if math.fabs(scores[i] - old_scores[i]) >= 0.005:
+        if math.fabs(scores[i] - old_scores[i]) >= max_textrank_error:
             flag = True
             break
     return flag
@@ -229,12 +231,14 @@ def weight_sentences_rank(weight_graph):
     scores = [0.5 for _ in range(len(weight_graph))]
     old_scores = [0.0 for _ in range(len(weight_graph))]
 
-    # 开始迭代
-    while different(scores, old_scores):
+    # begin iteration
+    iter_step = 0
+    while different(scores, old_scores) and iter_step < max_textrank_iterations:
         for i in range(len(weight_graph)):
             old_scores[i] = scores[i]
         for i in range(len(weight_graph)):
             scores[i] = calculate_score(weight_graph, scores, i)
+        iter_step += 1
     return scores
 
 
