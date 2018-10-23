@@ -1,7 +1,6 @@
-<<<<<<<<< Temporary merge branch 1
-# Byte-compiled / optimized / DLL files
+
 ./.idea/*
-./.word2vec/*
+./word2vec/*
 
 
 __pycache__/
@@ -107,10 +106,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-=========
-# IntelliJ project files
-.idea/*
-
-
-
->>>>>>>>> Temporary merge branch 2
