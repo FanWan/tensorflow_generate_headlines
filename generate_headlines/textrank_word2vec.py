@@ -15,8 +15,8 @@ np.seterr(all='warn')
 
 # output file paths
 word2vec_embeddings_path = './word2vec/w2v_model'
-training_path = './data/simple_corpus.csv'
-validate_path = './data/validate.csv'
+training_path = './data/train_corpus.csv'
+validate_path = './data/validate_corpus.csv'
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 unknown_word_during_textrank = []
@@ -87,14 +87,14 @@ def content_process2wv(texts):
     return sentences
 
 
-def train_word2vec(texts):
+def get_word2vec_model(texts):
     """
     :param texts:
     :return:model
     """
-    sentences = content_process2wv(texts)
     if not os.path.exists(word2vec_embeddings_path):
-        print('make model saved directory')
+        sentences = content_process2wv(texts)
+        print('make model-saved directory')
         os.makedirs(os.path.dirname(word2vec_embeddings_path))
         print('begin word2vec model training')
         model = word2vec.Word2Vec(sentences,
@@ -212,7 +212,7 @@ def different(scores, old_scores):
     """
     flag = False
     for i in range(len(scores)):
-        if math.fabs(scores[i] - old_scores[i]) >= 0.002:
+        if math.fabs(scores[i] - old_scores[i]) >= 0.005:
             flag = True
             break
     return flag
@@ -273,6 +273,7 @@ def extract_top_n_sentences(model, n, contents, titles, validate_data=False):
     else:
         out_file = open(validate_path, 'w')
     for index, content in enumerate(contents):
+        print('text-rank extracting, content number: %d' % index)
         top_n_sentences = text_rank(model, content, n)
         simple_content = ''
         for sent in top_n_sentences:
@@ -296,7 +297,7 @@ if __name__ == '__main__':
     contents, titles = load_data(os.path.abspath(args.data_dir), args.data_file_prefix,
                                  validate_data=args.text_rank_valid_data)
 
-    w2v_model = train_word2vec(contents)
+    w2v_model = get_word2vec_model(contents)
 
     print(unknown_word_during_textrank)
 

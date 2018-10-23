@@ -1,8 +1,7 @@
 
-./.idea/*
-./word2vec/*
-./seq2seq_model/*
-./data/*
+generate_headlines/word2vec/*
+generate_headlines/seq2seq_model/*
+generate_headlines/data/*
 
 
 __pycache__/
