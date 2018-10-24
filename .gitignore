@@ -1,4 +1,4 @@
-
+.idea/*
 generate_headlines/word2vec/*
 generate_headlines/seq2seq_model/*
 generate_headlines/data/*

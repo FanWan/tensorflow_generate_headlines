@@ -19,8 +19,8 @@ training_path = './data/train_corpus.csv'
 validate_path = './data/validate_corpus.csv'
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-max_textrank_iterations = 200
-max_textrank_error = 0.005
+max_textrank_iterations = 10
+max_textrank_error = 0.003
 unknown_word_during_textrank = []
 
 
@@ -153,7 +153,10 @@ def compute_similarity_by_avg(model, sents_1, sents_2):
 
 def query_vector(word, model, embedding_size=300):
     try:
-        vec = model[word]
+        init_vector = model[word]
+        max_val, min_val = np.max(init_vector), np.min(init_vector)
+        vector = (init_vector - min_val) / (max_val - min_val)
+        return vector
     except KeyError:
         unknown_word_during_textrank.append(word)
         vec = np.zeros(embedding_size, dtype=float)
@@ -196,9 +199,8 @@ def calculate_score(weight_graph, scores, i):
         # 计算分母
         for k in range(length):
             denominator += weight_graph[j][k]
-        # the follow worthy discussing
-        if denominator == 0:
-            denominator = 1
+            if denominator == 0:
+                denominator = 1
         added_score += fraction / denominator
     # 算出最终的分数
     weighted_score = (1 - d) + d * added_score
