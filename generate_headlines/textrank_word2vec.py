@@ -268,7 +268,7 @@ def text_rank(model, content, n):
     scores = weight_sentences_rank(graph)
     sent_selected = nlargest(n, zip(scores, count()))
     sent_index = []
-    for i in range(n):
+    for i in range(len(sent_selected)):
         sent_index.append(sent_selected[i][1])
     return [sentences[i] for i in sent_index]
 
