@@ -11,6 +11,7 @@ from gensim.models.keyedvectors import KeyedVectors
 from gensim.test.utils import get_tmpfile
 from gensim.scripts.glove2word2vec import glove2word2vec
 
+from textrank_word2vec import tokenizer
 from textrank_word2vec import word2vec_embeddings_path
 from textrank_word2vec import training_path, validate_path
 
@@ -80,9 +81,9 @@ def preprocess(text, keep_most=False):
         preprocessed and tokenized text.
     """
     tokenized = []
-    for sentence in nltk.sent_tokenize(text):
+    for sentence in tokenizer.tokenize(text):
         sentence = clean_str(sentence)
-        words = nltk.word_tokenize(sentence, keep_most)
+        words = nltk.tokenize.WordPunctTokenizer().tokenize(sentence)
         for token in words:
             tokenized.append(token)
     return tokenized
@@ -92,8 +93,8 @@ def build_dict(train=False):
     if train:
         train_article_list, train_title_list = get_init_data(train)
         words = list()
-        for sentence in train_article_list + train_title_list:
-            for word in word_tokenize(sentence):
+        for sent in train_article_list + train_title_list:
+            for word in sent:
                 words.append(word)
 
         word_counter = collections.Counter(words).most_common()

@@ -18,7 +18,7 @@ def add_arguments(parser):
     parser.add_argument("--beam_width", type=int, default=10, help="Beam width for beam search decoder.")
     parser.add_argument("--clip", type=int, default=5, help="clipping gradients.")
 
-    parser.add_argument("--embedding_type", type=int, default='glove', help="Use glove as initial word embedding.")
+    parser.add_argument("--embedding_type", type=str, default='glove', help="Use glove as initial word embedding.")
     parser.add_argument("--embedding_size", type=int, default=300, help="Word embedding size.")
 
     parser.add_argument("--learning_rate_type", type=str, default='exponential', help="learning rate type.")
