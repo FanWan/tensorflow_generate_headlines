@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 np.seterr(all='warn')
 
 # output file paths
-word2vec_embeddings_path = './word2vec/w2v_model'
+word2vec_embeddings_path = './word2vec_embed/w2v_model'
 training_path = './data/train_corpus.csv'
 validate_path = './data/validate_corpus.csv'
 

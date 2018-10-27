@@ -1,8 +1,9 @@
 .idea/*
-generate_headlines/word2vec/*
+generate_headlines/word2vec_embed/*
 generate_headlines/seq2seq_model/*
 generate_headlines/data/*
-
+generate_headlines/glove_embed/*
+generate_headlines/runtime_params/*
 
 __pycache__/
 *.py[cod]

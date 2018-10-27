@@ -11,12 +11,11 @@ from gensim.models.keyedvectors import KeyedVectors
 from gensim.test.utils import get_tmpfile
 from gensim.scripts.glove2word2vec import glove2word2vec
 
-from textrank_word2vec import tokenizer
-from textrank_word2vec import word2vec_embeddings_path
+from textrank_word2vec import tokenizer, word2vec_embeddings_path
 from textrank_word2vec import training_path, validate_path
 
 glove_embeddings_path = '/Users/wanfan01/Public/glove.840B.300d.txt'
-embedding_matrix_save_path = './embeddings/glove_embeddings.npy'
+embedding_matrix_save_path = './glove_embed/glove_embeddings.npy'
 
 
 def get_init_data(train=False):
@@ -89,11 +88,12 @@ def preprocess(text, keep_most=False):
     return tokenized
 
 
-def build_dict(train=False):
-    if train:
-        train_article_list, train_title_list = get_init_data(train)
+def build_dict(train=False, word2index_path=None):
+    article_list, title_list = get_init_data(train)
+    if not os.path.exists(os.path.dirname(word2index_path)):
+        # get word2index dictionary
         words = list()
-        for sent in train_article_list + train_title_list:
+        for sent in article_list + title_list:
             for word in sent:
                 words.append(word)
 
@@ -106,35 +106,38 @@ def build_dict(train=False):
         for word, _ in word_counter:
             word_dict[word] = len(word_dict)
 
-        with open("word_dict.pickle", "wb") as f:
+        # save word2index dictionary
+        os.makedirs(os.path.dirname(word2index_path))
+        with open(word2index_path, "wb") as f:
             pickle.dump(word_dict, f)
     else:
-        with open("word_dict.pickle", "rb") as f:
+        with open(word2index_path, "rb") as f:
             word_dict = pickle.load(f)
 
     reversed_dict = dict(zip(word_dict.values(), word_dict.keys()))
-
-    article_max_len = 150
-    summary_max_len = 20
-
-    return word_dict, reversed_dict, article_max_len, summary_max_len
+    return word_dict, reversed_dict, article_list, title_list
 
 
-def build_dataset(word_dict, article_max_len, summary_max_len, train=False):
+def build_dataset(word_dict, article_list, article_max_len,
+                  headline_max_len=None, headline_list=None, train=False):
 
-    article_list, title_list = get_init_data(train)
+    # converse word to index and make unknown word to the index of <unk>
+    x = [[word_dict.get(w, word_dict["<unk>"]) for w in d] for d in article_list]
 
-    x = [word_tokenize(d) for d in article_list]
-    x = [[word_dict.get(w, word_dict["<unk>"]) for w in d] for d in x]
+    # make the length of each sequence less than article_max_len
     x = [d[:article_max_len] for d in x]
+
+    # padding each sentence if necessary
     x = [d + (article_max_len - len(d)) * [word_dict["<padding>"]] for d in x]
     
     if not train:
         return x
-    else:        
-        y = [word_tokenize(d) for d in title_list]
-        y = [[word_dict.get(w, word_dict["<unk>"]) for w in d] for d in y]
-        y = [d[:(summary_max_len - 1)] for d in y]
+    else:
+        y = [[word_dict.get(w, word_dict["<unk>"]) for w in d] for d in headline_list]
+
+        # make the length of each sequence less than headline_max_len - 1, cause that sequence y need be inserted a
+        # begin tag <s> or an end tag </s> during training
+        y = [d[:(headline_max_len - 1)] for d in y]
         return x, y
 
 

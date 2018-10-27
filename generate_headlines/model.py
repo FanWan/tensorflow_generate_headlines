@@ -4,7 +4,7 @@ from data_utils import *
 
 
 class Model(object):
-    def __init__(self, word2index, article_max_len, summary_max_len, args,
+    def __init__(self, word2index, args,
                  train=True,
                  fixed_rate=0.001,
                  learning_rate_decay=0.9,
@@ -12,19 +12,19 @@ class Model(object):
                  max_lr=0.01):
         """
         :param word2index: word-index pair
-        :param article_max_len: maximum length of input sequences
-        :param summary_max_len: maximum length of headline sequences
         :param args: hyper-parameters of the model
         :param train: true--training, false--validating
+
         """
         self.vocabulary_size = len(word2index)
         self.embedding_size = args.embedding_size
         self.embedding_type = args.embedding_type
         self.word2index = word2index
-        self.summary_max_len = summary_max_len
+        self.summary_max_len = args.headline_max_len
+        self.article_max_len = args.article_max_len
 
         self.num_hidden = args.num_hidden
-        self.num_encoding_layers = args.num_encoding_ayers
+        self.num_encoding_layers = args.num_encoding_layers
         self.num_decoding_layers = args.num_decoding_layers
         self.beam_width = args.beam_width
         self.clip = args.clip
@@ -47,11 +47,11 @@ class Model(object):
 
         # adding placeholders
         self.batch_size = tf.placeholder(tf.int32, (), name="batch_size")
-        self.X = tf.placeholder(tf.int32, [None, article_max_len])
+        self.X = tf.placeholder(tf.int32, [None, self.article_max_len])
         self.X_len = tf.placeholder(tf.int32, [None])
-        self.decoder_input = tf.placeholder(tf.int32, [None, summary_max_len])
+        self.decoder_input = tf.placeholder(tf.int32, [None, self.summary_max_len])
         self.decoder_len = tf.placeholder(tf.int32, [None])
-        self.decoder_target = tf.placeholder(tf.int32, [None, summary_max_len])
+        self.decoder_target = tf.placeholder(tf.int32, [None, self.summary_max_len])
         self.global_step = tf.Variable(0, trainable=False)
 
         self.encoder_emb_inp, self.decoder_emb_inp, self.embeddings = self.add_embeddings()

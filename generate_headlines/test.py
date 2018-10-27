@@ -2,25 +2,24 @@ import tensorflow as tf
 import pickle
 from model import Model
 from data_utils import build_dict, build_dataset, batch_iter
+from train import hyper_params_path, word2index_path
 
-
-with open("args.pickle", "rb") as f:
+with open(hyper_params_path, "rb") as f:
     args = pickle.load(f)
 
 print("Loading dictionary...")
-word_dict, reversed_dict, article_max_len, summary_max_len = build_dict(train=False)
+word_dict, reversed_dict, article_list, _ = build_dict(word2index_path=word2index_path)
 print("Loading validation dataset...")
-valid_x = build_dataset(word_dict, article_max_len, summary_max_len, train=False)
+valid_x = build_dataset(word_dict, article_list, args.article_max_len)
 valid_x_len = [len([y for y in x if y != 0]) for x in valid_x]
 
 with tf.Session() as sess:
     print("Loading saved model...")
-    model = Model(reversed_dict, article_max_len, summary_max_len, args, train=False)
+    model = Model(reversed_dict, args, train=False)
     saver = tf.train.Saver(tf.global_variables())
     ckpt = tf.train.get_checkpoint_state("./seq2seq_model/")
     saver.restore(sess, ckpt.model_checkpoint_path)
 
-    # fi
     batches = batch_iter(valid_x, [0] * len(valid_x), args.batch_size, 1)
 
     print("Writing summaries to 'result.txt'...")
