@@ -130,6 +130,8 @@ class Model(object):
             encoder_state_c = tf.concat((encoder_state_fw[0].c, encoder_state_bw[0].c), 1)
             encoder_state_h = tf.concat((encoder_state_fw[0].h, encoder_state_bw[0].h), 1)
             encoder_state = rnn.LSTMStateTuple(c=encoder_state_c, h=encoder_state_h)
+            # each decoding layer need a initial state
+            encoder_state = tuple([encoder_state] * self.num_decoding_layers)
             return encoder_output, encoder_state
 
     def build_decoder_cell(self, train):
@@ -179,6 +181,10 @@ class Model(object):
                                                                             impute_finished=True,
                                                                             maximum_iterations=maximum_iterations)
                 logits = outputs.rnn_output
+
+                logits = tf.concat([logits, tf.zeros([self.batch_size,
+                                                      self.summary_max_len - tf.shape(logits)[1],
+                                                      self.vocabulary_size])], axis=1)
                 sample_id = outputs.sample_id
             else:
                 decoder = tf.contrib.seq2seq.BeamSearchDecoder(

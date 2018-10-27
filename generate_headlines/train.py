@@ -13,9 +13,9 @@ start = time.perf_counter()
 
 
 def add_arguments(parser):
-    parser.add_argument("--num_hidden", type=int, default=128, help="Network size.")
+    parser.add_argument("--num_hidden", type=int, default=64, help="Network size.")
     parser.add_argument("--num_encoding_layers", type=int, default=2, help="encode network depth.")
-    parser.add_argument("--num_decoding_layers", type=int, default=1, help="decode network depth.")
+    parser.add_argument("--num_decoding_layers", type=int, default=2, help="decode network depth.")
     parser.add_argument("--beam_width", type=int, default=10, help="Beam width for beam search decoder.")
     parser.add_argument("--clip", type=int, default=5, help="clipping gradients.")
 
@@ -24,7 +24,7 @@ def add_arguments(parser):
 
     parser.add_argument("--learning_rate_type", type=str, default='exponential', help="learning rate type.")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size.")
-    parser.add_argument("--num_epochs", type=int, default=10, help="Number of epochs.")
+    parser.add_argument("--num_epochs", type=int, default=2, help="Number of epochs.")
     parser.add_argument("--keep_prob", type=float, default=0.8, help="Dropout keep prob.")
     parser.add_argument("--with_model", action="store_true", default=False, help="Continue from pre-saved model.")
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     # dumping train parameters
     hyper_params_path = './runtime_params/args.pickle'
-    word2index_path = './runtime_params/word2index.pickle'
+    word2index_path = './runtime_params/word_dict.pickle'
     if not os.path.exists(os.path.dirname(hyper_params_path)):
         os.makedirs(os.path.dirname(hyper_params_path))
         with open(hyper_params_path, "wb") as f:
