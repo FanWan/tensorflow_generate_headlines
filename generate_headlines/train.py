@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
             _, step, loss = sess.run([model.train_op, model.global_step, model.loss], feed_dict=train_feed_dict)
 
-            if step % 20 == 0:
+            if step % 2 == 0:
                 print("step {0}: loss = {1}".format(step, loss))
 
             if step % num_batches_per_epoch == 0:

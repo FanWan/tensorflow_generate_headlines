@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.contrib import rnn
-from data_utils import *
+from data_utils import get_glove_embedding, get_word2vec_embedding
 
 
 class Model(object):
@@ -99,8 +99,8 @@ class Model(object):
                 init_embeddings = tf.constant(get_glove_embedding(self.word2index,
                                                                   embedding_dim=self.embedding_size), dtype=tf.float32)
             elif self.embedding_type == 'word2vec':
-                init_embeddings = tf.constant(get_word2vec_embedding(self.word2index, embedding_dim=self.embedding_size),
-                                                                     dtype=tf.float32)
+                init_embeddings = tf.constant(get_word2vec_embedding(self.word2index,
+                                                                     embedding_dim=self.embedding_size), dtype=tf.float32)
             else:
                 init_embeddings = tf.random_uniform([self.vocabulary_size, self.embedding_size], -1.0, 1.0)
             embeddings = tf.get_variable("embeddings", initializer=init_embeddings)

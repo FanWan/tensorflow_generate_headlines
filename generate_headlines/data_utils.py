@@ -1,4 +1,3 @@
-from nltk.tokenize import word_tokenize
 import re
 import collections
 import pickle
@@ -7,10 +6,6 @@ import html
 import os
 import nltk
 from gensim.models import word2vec
-from gensim.models.keyedvectors import KeyedVectors
-from gensim.test.utils import get_tmpfile
-from gensim.scripts.glove2word2vec import glove2word2vec
-
 from textrank_word2vec import tokenizer, word2vec_embeddings_path
 from textrank_word2vec import training_path, validate_path
 
@@ -192,22 +187,6 @@ def get_glove_embedding(word2ind, embedding_dim=300):
         os.makedirs(os.path.dirname(embedding_matrix_save_path))
         np.save(embedding_matrix_save_path, embedding_matrix)
         return np.array(embedding_matrix)
-
-
-# def get_init_embedding(word2ind, embedding_dim):
-#     glove_file = glove_embeddings_path
-#     word2vec_file = get_tmpfile("word2vec_format.vec")
-#     glove2word2vec(glove_file, word2vec_file)
-#     print("Loading Glove vectors...")
-#     word_vectors = KeyedVectors.load_word2vec_format(word2vec_file)
-#     embedding_matrix = np.zeros((len(word2ind), embedding_dim), dtype=np.float32)
-#     for word, i in word2ind.items():
-#         try:
-#             embedding_matrix[i] = word_vectors.word_vec(word)
-#         except KeyError:
-#             embedding_matrix[i] = np.array(np.random.uniform(-1.0, 1.0, embedding_dim))
-#
-#     return np.array(embedding_matrix)
 
 
 def get_word2vec_embedding(word2ind, embedding_dim=300):
