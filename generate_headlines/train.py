@@ -11,6 +11,9 @@ from data_utils import build_dict, build_dataset, batch_iter
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 start = time.perf_counter()
 
+hyper_params_path = './runtime_params/args.pickle'
+word2index_path = './runtime_params/word_dict.pickle'
+
 
 def add_arguments(parser):
     parser.add_argument("--num_hidden", type=int, default=64, help="Network size.")
@@ -37,9 +40,6 @@ if __name__ == '__main__':
     add_arguments(parser)
     args = parser.parse_args()
 
-    # dumping train parameters
-    hyper_params_path = './runtime_params/args.pickle'
-    word2index_path = './runtime_params/word_dict.pickle'
     if not os.path.exists(os.path.dirname(hyper_params_path)):
         os.makedirs(os.path.dirname(hyper_params_path))
         with open(hyper_params_path, "wb") as f:
