@@ -2,7 +2,7 @@ import tensorflow as tf
 import pickle
 from model import Model
 from data_utils import build_dict, build_dataset, batch_iter
-from train import hyper_params_path, word2index_path
+from train import hyper_params_path, word2index_path, seq2seq_model_dir
 
 with open(hyper_params_path, "rb") as f:
     args = pickle.load(f)
@@ -17,7 +17,7 @@ with tf.Session() as sess:
     print("Loading saved model...")
     model = Model(reversed_dict, args, train=False)
     saver = tf.train.Saver(tf.global_variables())
-    ckpt = tf.train.get_checkpoint_state("./seq2seq_model/")
+    ckpt = tf.train.get_checkpoint_state(seq2seq_model_dir)
     saver.restore(sess, ckpt.model_checkpoint_path)
 
     batches = batch_iter(valid_x, [0] * len(valid_x), args.batch_size, 1)

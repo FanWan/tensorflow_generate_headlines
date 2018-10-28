@@ -13,6 +13,7 @@ start = time.perf_counter()
 
 hyper_params_path = './runtime_params/args.pickle'
 word2index_path = './runtime_params/word_dict.pickle'
+seq2seq_model_dir = './seq2seq_model/'
 
 
 def add_arguments(parser):
@@ -42,16 +43,16 @@ if __name__ == '__main__':
 
     if not os.path.exists(os.path.dirname(hyper_params_path)):
         os.makedirs(os.path.dirname(hyper_params_path))
-        with open(hyper_params_path, "wb") as f:
-            pickle.dump(args, f)
+    with open(hyper_params_path, "wb") as f:
+        pickle.dump(args, f)
 
-    if not os.path.exists("seq2seq_model"):
-        os.mkdir("seq2seq_model")
+    if not os.path.exists(seq2seq_model_dir):
+        os.mkdir(seq2seq_model_dir)
     else:
         if args.with_model:
-            old_model_checkpoint_path = open('seq2seq_model/checkpoint', 'r')
-            old_model_checkpoint_path = "".join(["seq2seq_model/",
-                                                 old_model_checkpoint_path.read().splitlines()[0].split('"')[1]])
+            pre_model_checkpoint = open(seq2seq_model_dir + 'checkpoint', 'r')
+            pre_model_checkpoint = "".join([seq2seq_model_dir,
+                                            pre_model_checkpoint.read().splitlines()[0].split('"')[1]])
 
     print("Building dictionary...")
     word_dict, reversed_dict, article_list, headline_list = build_dict(train=True, word2index_path=word2index_path)
@@ -63,9 +64,9 @@ if __name__ == '__main__':
         model = Model(word_dict, args)
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver(tf.global_variables())
-        if 'old_model_checkpoint_path' in globals():
-            print("Continuing training from pre-trained model:", old_model_checkpoint_path, "......")
-            saver.restore(sess, old_model_checkpoint_path)
+        if 'pre_model_checkpoint' in globals():
+            print("Continuing training from pre-trained model:", pre_model_checkpoint, "......")
+            saver.restore(sess, pre_model_checkpoint)
 
         batches = batch_iter(train_x, train_y, args.batch_size, args.num_epochs)
         num_batches_per_epoch = (len(train_x) - 1) // args.batch_size + 1
@@ -106,9 +107,12 @@ if __name__ == '__main__':
             if step % 2 == 0:
                 print("step {0}: loss = {1}".format(step, loss))
 
+            # if step // 2 == 2:
             if step % num_batches_per_epoch == 0:
+
                 hours, rem = divmod(time.perf_counter() - start, 3600)
                 minutes, seconds = divmod(rem, 60)
-                saver.save(sess, "./seq2seq_model/model.ckpt", global_step=step)
+                saver.save(sess, seq2seq_model_dir + 'model.ckpt', global_step=step)
                 print(" Epoch {0}: Model is saved.".format(step // num_batches_per_epoch),
                       "Elapsed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds), "\n")
+
