@@ -95,6 +95,7 @@ class Model(object):
             creating the embedding matrix: pre-trained glove, word2vec or training word2vec
         """
         with tf.name_scope("embedding"):
+            print('loading embedding matrix')
             if self.embedding_type == 'glove':
                 init_embeddings = tf.constant(get_glove_embedding(self.word2index,
                                                                   embedding_dim=self.embedding_size), dtype=tf.float32)
@@ -103,8 +104,7 @@ class Model(object):
                                                                      embedding_dim=self.embedding_size), dtype=tf.float32)
             else:
                 init_embeddings = tf.random_uniform([self.vocabulary_size, self.embedding_size], -1.0, 1.0)
-            embeddings = tf.get_variable("embeddings", initializer=init_embeddings)
-            print('loading embedding matrix')
+            embeddings = tf.get_variable("embeddings", initializer=init_embeddings, trainable=False)
             # input matrix is the dimension of [batch_size, max_time, embedding_size]
             encoder_emb_inp = tf.nn.embedding_lookup(embeddings, self.X, name="encoder_emb_inp")
             decoder_emb_inp = tf.nn.embedding_lookup(embeddings, self.decoder_input, name="decoder_emb_inp")
@@ -196,7 +196,7 @@ class Model(object):
                     beam_width=self.beam_width,
                     output_layer=self.projection_layer)
                 outputs, final_state, _ = tf.contrib.seq2seq.dynamic_decode(decoder,
-                                                                            impute_finished=True,
+                                                                            impute_finished=False,
                                                                             maximum_iterations=self.summary_max_len,
                                                                             scope=decoder_scope)
                 logits = tf.no_op()

@@ -107,12 +107,9 @@ if __name__ == '__main__':
             if step % 2 == 0:
                 print("step {0}: loss = {1}".format(step, loss))
 
-            # if step // 2 == 2:
             if step % num_batches_per_epoch == 0:
-
                 hours, rem = divmod(time.perf_counter() - start, 3600)
                 minutes, seconds = divmod(rem, 60)
                 saver.save(sess, seq2seq_model_dir + 'model.ckpt', global_step=step)
                 print(" Epoch {0}: Model is saved.".format(step // num_batches_per_epoch),
                       "Elapsed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds), "\n")
-

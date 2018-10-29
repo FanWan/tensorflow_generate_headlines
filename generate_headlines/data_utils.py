@@ -92,7 +92,7 @@ def build_dict(train=False, word2index_path=None):
             for word in sent:
                 words.append(word)
 
-        word_counter = collections.Counter(words).most_common()
+        word_counter = collections.Counter(words).most_common(n=50000)
         word_dict = dict()
         word_dict["<padding>"] = 0
         word_dict["<unk>"] = 1
