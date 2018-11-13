@@ -22,8 +22,10 @@ def get_init_data(train=False):
     if train:
         for line in open(training_path, 'r').readlines():
             tmp = eval(line)
-            data_x.append(preprocess(tmp["content"]))
-            data_y.append(preprocess(tmp["title"]))
+            x, y = preprocess(tmp["content"]), preprocess(tmp["title"])
+            if len(x) != 0 and len(y) != 0:
+                data_x.append(x)
+                data_y.append(y)
     else:
         for line in open(validate_path, 'r').readlines():
             tmp = eval(line)
@@ -122,7 +124,7 @@ def build_dataset(word_dict, article_list, article_max_len,
     # make the length of each sequence less than article_max_len
     x = [d[:article_max_len] for d in x]
 
-    # padding each sentence if necessary
+    # padding each sequence if necessary
     x = [d + (article_max_len - len(d)) * [word_dict["<padding>"]] for d in x]
     
     if not train:

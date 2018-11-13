@@ -1,8 +1,5 @@
 import tensorflow as tf
 from tensorflow.contrib.seq2seq import *
-from gensim.test.utils import common_texts, get_tmpfile
-
-ff = get_tmpfile()
 
 
 t1 = tf.constant([[[1, 1, 1], [2, 2, 2]], [[3, 3, 3], [4, 4, 4]]], shape=[2, 2, 3], dtype=tf.int32)
@@ -14,10 +11,6 @@ t1_t2_0 = tf.concat([t1, t2], 0)
 t1_t2_1 = tf.concat([t1, t2], 1)
 
 t1_t2_2 = tf.concat([t1, t2], 2)
-
-b = tf.transpose
-c = tf.unstack
-d = tf.reshape
 
 a1 = sequence_loss
 a2 = Decoder
@@ -51,6 +44,11 @@ a26 = safe_cumprod
 a27 = monotonic_attention
 a28 = BahdanauMonotonicAttention
 a29 = LuongMonotonicAttention
+
+
+def test_data_valid():
+
+    pass
 
 
 with tf.Session() as sess:
