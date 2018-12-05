@@ -43,8 +43,8 @@ if __name__ == '__main__':
 
     if not os.path.exists(os.path.dirname(hyper_params_path)):
         os.makedirs(os.path.dirname(hyper_params_path))
-    with open(hyper_params_path, "wb") as f:
-        pickle.dump(args, f)
+        with open(hyper_params_path, "wb") as f:
+            pickle.dump(args, f)
 
     if not os.path.exists(seq2seq_model_dir):
         os.mkdir(seq2seq_model_dir)

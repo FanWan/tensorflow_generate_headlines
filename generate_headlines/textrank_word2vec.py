@@ -199,9 +199,11 @@ def calculate_score(weight_graph, scores, i):
         # 计算分母
         for k in range(length):
             denominator += weight_graph[j][k]
+            # avoiding float division by zero
             if denominator == 0:
                 denominator = 1
         added_score += fraction / denominator
+
     # 算出最终的分数
     weighted_score = (1 - d) + d * added_score
     return weighted_score
@@ -270,6 +272,7 @@ def text_rank(model, content, n):
     sent_index = []
     for i in range(len(sent_selected)):
         sent_index.append(sent_selected[i][1])
+    print(sent_index)
     return [sentences[i] for i in sent_index]
 
 
@@ -279,8 +282,8 @@ def extract_top_n_sentences(model, n, contents, titles, validate_data=False):
     else:
         out_file = open(validate_path, 'w')
     for index, content in enumerate(contents):
-        print('text-rank extracting, content number: %d' % index)
         top_n_sentences = text_rank(model, content, n)
+        # print('text-rank extracting, content number: %d' % index)
         simple_content = ''
         for sent in top_n_sentences:
             simple_content += sent
