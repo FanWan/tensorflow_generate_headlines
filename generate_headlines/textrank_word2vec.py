@@ -126,7 +126,7 @@ def cosine_similarity(vec1, vec2):
     cos1 = np.sum(tx * ty)
     cos21 = np.sqrt(sum(tx ** 2))
     cos22 = np.sqrt(sum(ty ** 2))
-    cosine_value = cos1 / float(cos21 * cos22)
+    cosine_value = cos1 / (cos21 * cos22)
     return cosine_value
 
 
@@ -258,15 +258,18 @@ def filter_words(model, sents):
     return _sents
 
 
-def text_rank(model, content, n):
+def text_rank(model, content, title, n):
     tokens = cut_sentences(content)
     sentences = []
     sents_words = []
     for sentence in tokens:
+        sentence_cut = nltk.tokenize.WordPunctTokenizer().tokenize(sentence)
+        if len(sentence_cut) < 5:
+            continue
         sentences.append(sentence)
-        sents_words.append([word for word in cut_word_stand(sentence) if word])
+        sents_words.append(sentence_cut)
 
-    graph = create_graph(model, filter_words(model, sents_words))
+    graph = create_graph(model, sents_words)
     scores = weight_sentences_rank(graph)
     sent_selected = nlargest(n, zip(scores, count()))
     sent_index = []
@@ -281,8 +284,9 @@ def extract_top_n_sentences(model, n, contents, titles, validate_data=False):
         out_file = open(training_path, 'w')
     else:
         out_file = open(validate_path, 'w')
-    for index, content in enumerate(contents):
-        top_n_sentences = text_rank(model, content, n)
+    index = 0
+    for content, title in zip(contents, titles):
+        top_n_sentences = text_rank(model, content, title, n)
         # print('text-rank extracting, content number: %d' % index)
         simple_content = ''
         for sent in top_n_sentences:
@@ -293,6 +297,7 @@ def extract_top_n_sentences(model, n, contents, titles, validate_data=False):
         if not validate_data:
             line_dict['title'] = titles[index]
         line = str(line_dict) + '\n'
+        index += 1
         out_file.write(line)
     out_file.flush()
     out_file.close()
@@ -311,3 +316,5 @@ if __name__ == '__main__':
     print(unknown_word_during_textrank)
 
     extract_top_n_sentences(w2v_model, 5, contents, titles, validate_data=args.text_rank_valid_data)
+
+

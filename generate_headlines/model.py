@@ -88,7 +88,7 @@ class Model(object):
                 optimizer = tf.train.AdamOptimizer(self.learning_rate)
                 self.train_op = optimizer.apply_gradients(zip(clipped_gradients, params), global_step=self.global_step)
         else:
-            self.prediction = sample_id
+            self.prediction = tf.transpose(sample_id, [0, 2, 1])    # [batch_size, beam_width, summary_max_len]
 
     def add_embeddings(self):
         """
@@ -200,7 +200,7 @@ class Model(object):
                                                                             maximum_iterations=self.summary_max_len,
                                                                             scope=decoder_scope)
                 logits = tf.no_op()
-                sample_id = outputs.predicted_ids
+                sample_id = outputs.predicted_ids       # [batch_size, summary_max_len, beam_width]
             return logits, sample_id, final_state
 
     def make_rnn_cell(self, num_units):
@@ -238,37 +238,3 @@ class Model(object):
             current_step, dtype=tf.float32))
         return lr
 
-    # def softmax_cross_entropy_loss(elf, logits, decoder_cell_outputs, labels):
-    #     """
-    #         compute softmax loss or sampled softmax loss(for speeding training).
-    #         if num_sampled_softmax > 0: logits = None, decoder_cell_outputs = outputs.rnn_output
-    #         otherwise: logits = outputs.rnn_output, decoder_cell_outputs = None
-    #     """
-    #     if self.num_sampled_softmax > 0:
-    #
-    #         is_sequence = (decoder_cell_outputs.shape.ndims == 3)
-    #
-    #         if is_sequence:
-    #             labels = tf.reshape(labels, [-1, 1])
-    #             inputs = tf.reshape(decoder_cell_outputs, [-1, self.num_units])
-    #
-    #         crossent = tf.nn.sampled_softmax_loss(
-    #             weights=tf.transpose(self.output_layer.kernel),
-    #             biases=self.output_layer.bias or tf.zeros([self.tgt_vocab_size]),
-    #             labels=labels,
-    #             inputs=inputs,
-    #             num_sampled=self.num_sampled_softmax,
-    #             num_classes=self.tgt_vocab_size,
-    #             partition_strategy="div",
-    #             seed=self.random_seed)
-    #
-    #         if is_sequence:
-    #             if self.time_major:
-    #                 crossent = tf.reshape(crossent, [-1, self.batch_size])
-    #             else:
-    #                 crossent = tf.reshape(crossent, [self.batch_size, -1])
-    #
-    #     else:
-    #         crossent = tf.nn.sparse_softmax_cross_entropy_with_logits(
-    #             labels=labels, logits=logits)
-    #     return crossent
